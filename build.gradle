@@ -1,0 +1,50 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+allprojects {
+    group 'com.nolydia'
+    version '1.0-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = 15
+
+    repositories {
+        mavenCentral()
+
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+        maven {
+            url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+    }
+
+    dependencies {
+        implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.16.5-R0.1-SNAPSHOT'
+
+        implementation group: 'com.google.inject', name: 'guice', version: '5.0.0'
+    }
+
+    if (it.name != 'common') {
+        dependencies {
+            implementation project(':common')
+        }
+
+        if (it.name != 'bungee' && it.name != 'bukkit') {
+            apply plugin: 'com.github.johnrengelman.shadow'
+
+            dependencies {
+                implementation project(':bukkit')
+            }
+
+            shadowJar {
+                archiveFileName = "${project.name}.jar"
+                destinationDirectory = file(targetDirectory)
+            }
+        }
+    }
+}
