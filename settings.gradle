@@ -2,4 +2,6 @@ rootProject.name = 'nolydia'
 include 'common'
 include 'bukkit'
 include 'bungee'
+include 'lobby'
+include 'bedwars'
 

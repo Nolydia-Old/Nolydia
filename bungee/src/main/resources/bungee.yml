@@ -1,0 +1,4 @@
+name: @NAME@
+version: @VERSION@
+author: Choukas
+main: com.nolydia.bungee.api.plugin.BungeePlugin

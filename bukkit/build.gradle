@@ -8,3 +8,7 @@ version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.16.5-R0.1-SNAPSHOT'
+}

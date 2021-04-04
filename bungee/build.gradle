@@ -8,3 +8,12 @@ version '1.0-SNAPSHOT'
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    implementation group: 'net.md-5', name: 'bungeecord-api', version: '1.16-R0.5-SNAPSHOT'
+}
+
+shadowJar {
+    archiveFileName = "${project.name}.jar"
+    destinationDirectory = file(proxyTargetDirectory)
+}

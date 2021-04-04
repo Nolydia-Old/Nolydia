@@ -1,0 +1,2 @@
+- Instaurer un système de levels d'erreur pour gérer les erreurs en fonction du niveau d'erreur
+(peut-être différencier environnement PROD vs DEV)

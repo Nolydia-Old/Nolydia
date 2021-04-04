@@ -2,6 +2,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
+import org.apache.tools.ant.filters.ReplaceTokens
+
 allprojects {
     group 'com.nolydia'
     version '1.0-SNAPSHOT'
@@ -9,6 +11,8 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+
+    compileJava.options.encoding = 'UTF-8'
 
     sourceCompatibility = 15
 
@@ -24,9 +28,13 @@ subprojects {
     }
 
     dependencies {
-        implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.16.5-R0.1-SNAPSHOT'
+        implementation group: 'net.md-5', name: 'bungeecord-chat', version: '1.16-R0.4'
 
-        implementation group: 'com.google.inject', name: 'guice', version: '5.0.0'
+        implementation group: 'org.yaml', name: 'snakeyaml', version: '1.28'
+
+        implementation group: 'com.google.inject', name: 'guice', version: '5.0.1'
+        implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
+        implementation group: 'com.google.inject.extensions', name: 'guice-throwingproviders', version: '5.0.1'
     }
 
     if (it.name != 'common') {
@@ -34,16 +42,37 @@ subprojects {
             implementation project(':common')
         }
 
-        if (it.name != 'bungee' && it.name != 'bukkit') {
+        if (it.name != 'bungee') {
+            dependencies {
+                implementation group: 'org.spigotmc', name: 'spigot-api', version: '1.16.5-R0.1-SNAPSHOT'
+            }
+        }
+
+        if (it.name != 'bukkit') {
             apply plugin: 'com.github.johnrengelman.shadow'
 
-            dependencies {
-                implementation project(':bukkit')
+            processResources {
+                filter ReplaceTokens, tokens: [
+                        NAME       : project.name,
+                        VERSION    : project.version
+                ]
             }
 
-            shadowJar {
-                archiveFileName = "${project.name}.jar"
-                destinationDirectory = file(targetDirectory)
+            if (it.name != 'bungee') {
+                processResources {
+                    filter ReplaceTokens, tokens: [
+                            API_VERSION: apiVersion
+                    ]
+                }
+
+                dependencies {
+                    implementation project(':bukkit')
+                }
+
+                shadowJar {
+                    archiveFileName = "${project.name}.jar"
+                    destinationDirectory = file(targetDirectory)
+                }
             }
         }
     }
