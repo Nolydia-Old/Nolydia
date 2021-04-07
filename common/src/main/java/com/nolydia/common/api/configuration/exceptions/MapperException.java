@@ -1,4 +1,4 @@
-package com.nolydia.common.api.mapping.exceptions;
+package com.nolydia.common.api.configuration.exceptions;
 
 public class MapperException extends Exception {
 

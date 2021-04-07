@@ -33,6 +33,12 @@ public class InternalizationModule extends AbstractModule {
         bind(InternalizationService.class).to(InternalizationServiceImpl.class);
     }
 
+    @Provides
+    @Named("InternalizationPath")
+    public Path provideInternalizationPath() {
+        return Path.of("/users/juan/nolydia/internalization");
+    }
+
     @CheckedProvides(InternalizationDirectoriesProvider.class)
     public List<FileDirectory> provideInternalizationDirectories(@Named("InternalizationPath") Path root, @DataFolder Path dataFolder, FileDirectoryFactory fileDirectoryFactory) throws FileDirectoryException {
         List<FileDirectory> directories = new ArrayList<>();

@@ -2,35 +2,34 @@ package com.nolydia.common.api.persistence.sql.access;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
-import com.nolydia.common.api.persistence.sql.SQLCredentials;
+import com.nolydia.common.api.persistence.sql.SQLConfiguration;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-// TODO: 04/04/2021 Mettre en config
 public class SQLAccessImpl implements SQLAccess {
 
-    private final SQLCredentials credentials;
+    private final SQLConfiguration configuration;
     private HikariDataSource dataSource;
 
     @Inject
-    public SQLAccessImpl(@Named("SQLCredentials") SQLCredentials credentials) {
-        this.credentials = credentials;
+    public SQLAccessImpl(@Named("SQLConfiguration") SQLConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
     public void initPool() {
-        HikariConfig config = new HikariConfig();
+        HikariConfig hikariConfiguration = new HikariConfig();
 
-        config.setJdbcUrl(credentials.toURL());
-        config.setUsername(credentials.getUsername());
-        config.setPassword(credentials.getPassword());
+        hikariConfiguration.setJdbcUrl(configuration.toURL());
+        hikariConfiguration.setUsername(configuration.getUsername());
+        hikariConfiguration.setPassword(configuration.getPassword());
 
-        config.setMaximumPoolSize(16);
+        hikariConfiguration.setMaximumPoolSize(configuration.getPoolSize());
 
-        dataSource = new HikariDataSource(config);
+        dataSource = new HikariDataSource(hikariConfiguration);
     }
 
     @Override

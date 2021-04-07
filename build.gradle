@@ -32,6 +32,9 @@ subprojects {
 
         implementation group: 'org.yaml', name: 'snakeyaml', version: '1.28'
 
+        implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.12.2'
+        implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: '2.12.2'
+
         implementation group: 'com.google.inject', name: 'guice', version: '5.0.1'
         implementation group: 'com.google.inject.extensions', name: 'guice-assistedinject', version: '5.0.1'
         implementation group: 'com.google.inject.extensions', name: 'guice-throwingproviders', version: '5.0.1'
