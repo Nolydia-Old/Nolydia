@@ -1,0 +1,4 @@
+plugins {
+    id 'nolydia.java-conventions'
+    id 'com.github.johnrengelman.shadow'
+}

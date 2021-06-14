@@ -1,0 +1,7 @@
+command.language: Gérez la langue de votre jeu
+command.language.set: Changer la langue de votre jeu
+command.language.show: Afficher la langue de votre jeu
+
+argument.locale: language
+argument.locale.invalid_locale: "%locale% n'est pas une langue valide"
+argument.locale.has_already_locale: "Votre langue est déjà fixée à %locale%"

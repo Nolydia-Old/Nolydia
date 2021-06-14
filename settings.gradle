@@ -1,7 +1,12 @@
 rootProject.name = 'nolydia'
-include 'common'
-include 'bukkit'
-include 'bungee'
-include 'lobby'
-include 'bedwars'
 
+include 'common'
+
+include 'bukkit-api'
+include 'bukkit-core'
+
+include 'bungee-api'
+include 'bungee-core'
+
+include 'bedwars'
+include 'lobby'

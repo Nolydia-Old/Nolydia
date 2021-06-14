@@ -1,0 +1,4 @@
+plugins {
+    id 'nolydia.library-conventions'
+    id 'nolydia.bukkit-conventions'
+}

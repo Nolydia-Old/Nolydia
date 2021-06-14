@@ -1,23 +1,33 @@
 package com.nolydia.common.api.internalization;
 
 import com.google.inject.Inject;
-import com.nolydia.common.api.configuration.exceptions.ConfigurationException;
 import com.nolydia.common.api.internalization.exceptions.UnsupportedLocaleException;
 import com.nolydia.common.api.internalization.providers.TranslationMapProvider;
-import com.nolydia.common.api.io.directory.exceptions.FileDirectoryException;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
- * Default {@link InternalizationService} implementation.
+ * This class is the default {@link InternalizationService} implementation.
  */
 public class InternalizationServiceImpl implements InternalizationService {
 
     private final Map<Locale, Map<String, String>> translations;
 
     @Inject
-    public InternalizationServiceImpl(TranslationMapProvider translationMapProvider) throws FileDirectoryException, ConfigurationException {
-        this.translations = translationMapProvider.get();
+    public InternalizationServiceImpl(TranslationMapProvider translationMapProvider) {
+        Map<Locale, Map<String, String>> translations;
+
+        try {
+            translations = translationMapProvider.get();
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+
+            translations = UnavailableTranslationMap.getDefaultTranslationMap();
+        }
+
+        this.translations = translations;
     }
 
     @Override

@@ -1,0 +1,3 @@
+plugins {
+    id 'nolydia.bungee-plugin-conventions'
+}

@@ -7,33 +7,33 @@ import com.nolydia.common.api.command.inject.CommandPostExecutor;
 import com.nolydia.common.api.listener.inject.ListenerPostExecutor;
 import com.nolydia.common.api.persistence.sql.access.SQLAccess;
 import com.nolydia.common.api.plugin.ModularPlugin;
+import com.nolydia.common.api.plugin.shutdown.PluginCloser;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO: 26/02/2021 Remove try ... catch block
 public class PluginBootstrapper {
 
-    public Injector boostrap(Module bootstrapModule, Module coreModule, ModularPlugin plugin) {
-        Injector injector = null;
+    public Injector boostrap(Module bootstrapModule, ModularPlugin plugin) throws Exception {
+        Injector injector = Guice.createInjector(
+                Stream.concat(
+                        Stream.of(
+                                bootstrapModule,
+                                new CommonModule()
+                        ),
+                        plugin.getModules().stream()
+                ).collect(Collectors.toList())
+        );
 
-        try {
-            injector = Guice.createInjector(Stream
-                    .concat(
-                            Stream.of(
-                                    bootstrapModule,
-                                    new CommonModule(),
-                                    coreModule),
-                            plugin.getModules().stream())
-                    .collect(Collectors.toList()));
+        injector.getInstance(CommandPostExecutor.class).registerCommands();
+        injector.getInstance(ListenerPostExecutor.class).registerListeners();
 
-            injector.getInstance(CommandPostExecutor.class).registerCommands();
-            injector.getInstance(ListenerPostExecutor.class).registerListeners();
+        PluginCloser pluginCloser = injector.getInstance(PluginCloser.class);
 
-            injector.getInstance(SQLAccess.class).initPool();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SQLAccess sqlAccess = injector.getInstance(SQLAccess.class);
+        //sqlAccess.initPool();
+
+        pluginCloser.addHook(sqlAccess);
 
         return injector;
     }

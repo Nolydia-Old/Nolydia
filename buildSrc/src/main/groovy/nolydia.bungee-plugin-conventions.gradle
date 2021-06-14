@@ -1,0 +1,26 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'nolydia.plugin-conventions'
+    id 'nolydia.bungee-conventions'
+}
+
+dependencies {
+    implementation project(':bungee-api')
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            NAME   : project.name,
+            VERSION: project.version
+    ]
+}
+
+shadowJar {
+    doFirst {
+        clean
+    }
+
+    archiveFileName = "${project.name}.jar"
+    destinationDirectory = file(proxyTargetDirectory)
+}

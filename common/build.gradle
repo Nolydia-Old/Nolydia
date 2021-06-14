@@ -1,12 +1,5 @@
 plugins {
-    id 'java'
-}
-
-group 'com.nolydia'
-version '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+    id 'nolydia.library-conventions'
 }
 
 dependencies {

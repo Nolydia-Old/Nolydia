@@ -1,11 +1,14 @@
 package com.nolydia.common.api.persistence.sql.access;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.nolydia.common.api.persistence.sql.SQLConfiguration;
+import com.nolydia.common.api.persistence.sql.configuration.SQLConfiguration;
+import com.nolydia.common.api.persistence.sql.configuration.SQLConfigurationProvider;
+import com.nolydia.common.api.persistence.sql.configuration.UnavailableSQLConfiguration;
+import com.nolydia.common.api.persistence.sql.exceptions.SQLInitPoolException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -15,12 +18,21 @@ public class SQLAccessImpl implements SQLAccess {
     private HikariDataSource dataSource;
 
     @Inject
-    public SQLAccessImpl(@Named("SQLConfiguration") SQLConfiguration configuration) {
+    public SQLAccessImpl(SQLConfigurationProvider configurationProvider) {
+        SQLConfiguration configuration;
+
+        try {
+            configuration = configurationProvider.get();
+        } catch (IOException e) {
+            e.printStackTrace();
+            configuration = UnavailableSQLConfiguration.getDefaultConfiguration();
+        }
+
         this.configuration = configuration;
     }
 
     @Override
-    public void initPool() {
+    public void initPool() throws SQLInitPoolException {
         HikariConfig hikariConfiguration = new HikariConfig();
 
         hikariConfiguration.setJdbcUrl(configuration.toURL());
@@ -29,12 +41,18 @@ public class SQLAccessImpl implements SQLAccess {
 
         hikariConfiguration.setMaximumPoolSize(configuration.getPoolSize());
 
-        dataSource = new HikariDataSource(hikariConfiguration);
+        try {
+            dataSource = new HikariDataSource(hikariConfiguration);
+        } catch (Exception e) {
+            throw new SQLInitPoolException(configuration, e);
+        }
     }
 
     @Override
-    public void closePool() {
-        dataSource.close();
+    public void close() {
+        if (!isClosed()) {
+            dataSource.close();
+        }
     }
 
     @Override
@@ -47,6 +65,6 @@ public class SQLAccessImpl implements SQLAccess {
     }
 
     private boolean isClosed() {
-        return dataSource == null || !dataSource.isRunning();
+        return dataSource == null || dataSource.isClosed();
     }
 }

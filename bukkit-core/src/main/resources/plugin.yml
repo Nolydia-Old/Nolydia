@@ -1,0 +1,5 @@
+name: @NAME@
+version: @VERSION@
+author: Choukas
+api-version: @API_VERSION@
+main: com.nolydia.bukkit.core.BukkitCorePlugin

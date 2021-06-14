@@ -1,0 +1,23 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'nolydia.plugin-conventions'
+    id 'nolydia.bukkit-conventions'
+}
+
+dependencies {
+    implementation project(':bukkit-api')
+}
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            NAME       : project.name,
+            VERSION    : project.version,
+            API_VERSION: apiVersion
+    ]
+}
+
+shadowJar {
+    archiveFileName = "${project.name}.jar"
+    destinationDirectory = file(targetDirectory)
+}

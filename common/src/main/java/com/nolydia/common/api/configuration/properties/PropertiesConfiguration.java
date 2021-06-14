@@ -4,12 +4,9 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import com.nolydia.common.api.configuration.AbstractConfiguration;
-import com.nolydia.common.api.configuration.exceptions.ConfigurationException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -19,16 +16,14 @@ public class PropertiesConfiguration extends AbstractConfiguration {
     private final Map<String, String> content = new HashMap<>();
 
     @Inject
-    public PropertiesConfiguration(@Assisted Path path) throws ConfigurationException {
-        super(path);
+    public PropertiesConfiguration(@Assisted String fileName, @Assisted InputStream inputStream) throws IOException {
+        super(fileName);
 
-        try (InputStream in = Files.newInputStream(path)) {
+        try (inputStream) {
             Properties content = new Properties();
-            content.load(in);
+            content.load(inputStream);
 
             this.content.putAll(Maps.fromProperties(content));
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
         }
     }
 

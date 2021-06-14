@@ -7,61 +7,57 @@ import com.google.inject.throwingproviders.CheckedProvides;
 import com.google.inject.throwingproviders.ThrowingProviderBinder;
 import com.nolydia.common.api.configuration.Configuration;
 import com.nolydia.common.api.configuration.ConfigurationFactory;
-import com.nolydia.common.api.configuration.exceptions.ConfigurationException;
 import com.nolydia.common.api.internalization.exceptions.UnsupportedLocaleException;
-import com.nolydia.common.api.internalization.providers.InternalizationDirectoriesProvider;
 import com.nolydia.common.api.internalization.providers.TranslationMapProvider;
-import com.nolydia.common.api.io.directory.FileDirectory;
-import com.nolydia.common.api.io.directory.FileDirectoryFactory;
-import com.nolydia.common.api.io.directory.exceptions.FileDirectoryException;
-import com.nolydia.common.api.plugin.annotations.DataFolder;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
-/**
- * Load all the plugin's translations, including those of the parent folders.
- * TODO Ajouter la gestion d'erreurs pour les traductions pas encore faites
- * TODO Ajouter le fait de mettre pouvoir plusieurs lignes dans les traductions
- */
 public class InternalizationModule extends AbstractModule {
 
     @Override
     protected void configure() {
         install(ThrowingProviderBinder.forModule(this));
 
-        bind(InternalizationService.class).to(InternalizationServiceImpl.class);
-    }
-
-    @Provides
-    @Named("InternalizationPath")
-    public Path provideInternalizationPath() {
-        return Path.of("/users/juan/nolydia/internalization");
-    }
-
-    @CheckedProvides(InternalizationDirectoriesProvider.class)
-    public List<FileDirectory> provideInternalizationDirectories(@Named("InternalizationPath") Path root, @DataFolder Path dataFolder, FileDirectoryFactory fileDirectoryFactory) throws FileDirectoryException {
-        List<FileDirectory> directories = new ArrayList<>();
-
-        Path currentFolder = root.resolve(dataFolder).toAbsolutePath();
-
-        while (!currentFolder.equals(root.getParent())) {
-            FileDirectory fileDirectory = fileDirectoryFactory.createFileDirectory(currentFolder);
-            directories.add(fileDirectory);
-
-            currentFolder = currentFolder.getParent();
-        }
-
-        return directories;
+        bind(InternalizationService.class).to(InternalizationServiceImpl.class).asEagerSingleton();
     }
 
     @CheckedProvides(TranslationMapProvider.class)
-    public Map<Locale, Map<String, String>> provideTranslationMap(InternalizationDirectoriesProvider directories, ConfigurationFactory configurationFactory) throws FileDirectoryException, ConfigurationException {
+    public Map<Locale, Map<String, String>> provideTranslationMap(ConfigurationFactory configurationFactory) throws IOException, URISyntaxException {
         Map<Locale, Map<String, String>> translations = new HashMap<>();
 
-        for (FileDirectory directory : directories.get()) {
-            for (Path path : directory.listDirectory()) {
-                Configuration configuration = configurationFactory.createConfiguration(path);
+        String jarPath = getClass().getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toURI()
+                .getPath();
+
+        URI uri = URI.create("jar:file:" + jarPath);
+
+        try (FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+            Path translationPath = fileSystem.getPath("translations");
+
+            if (!Files.exists(translationPath)) {
+                return Collections.emptyMap();
+            }
+
+            List<Path> paths = Files.walk(fileSystem.getPath("translations"))
+                    .filter(Files::isRegularFile)
+                    .collect(Collectors.toList());
+
+            for (Path path : paths) {
+                String fileName = path.getFileName().toString();
+                InputStream inputStream = Files.newInputStream(path);
+
+                Configuration configuration = configurationFactory.createConfiguration(fileName, inputStream);
 
                 String localeTag = configuration.getName();
                 Optional<Locale> optionalLocale = Locale.getByTag(localeTag);

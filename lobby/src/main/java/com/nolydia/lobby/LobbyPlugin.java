@@ -10,6 +10,6 @@ public class LobbyPlugin extends BukkitPlugin {
 
     @Override
     public Collection<Module> getModules() {
-        return Collections.singletonList(new LobbyModule());
+        return Collections.singleton(new LobbyModule());
     }
 }

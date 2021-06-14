@@ -5,52 +5,59 @@ import com.nolydia.common.api.command.sender.CommandSender;
 import com.nolydia.common.api.internalization.InternalizationMessage;
 
 /**
- * An {@code Argument} can be required or facultative.
- * If the {@code Argument} is a string potentially containing whitespaces,
- * then {@link Argument#isString()} must return {@code true}.
- * The {@code Argument} must implement the way it is parsed in {@link Argument#get(CommandSender, String)}.
+ * The {@code Argument} interface represents an argument in a minecraft command, as bellows :
+ * <p>
+ * <code>/coins add &lt;amount&gt; [player]</code>, where :
+ * <ul>
+ *     <li><code>amount</code> is a required {@code Argument}</li>
+ *     <li><code>player</code> is a facultative {@code Argument}</li>
+ * </ul>
+ * <p>
+ * An {@code Argument} can be required or facultative. All {@code Arguments} that follow a facultative argument must be
+ * facultative too.
+ * <p>
+ * If the {@code Argument} is a string potentially containing whitespaces, then {@link Argument#isString()} must return
+ * {@code true}.
+ * <p>
+ * The implementation must define the way the argument will be parsed in {@link Argument#get(CommandSender, String)}.
  * Once parsed, {@code Arguments} are stored in an {@link ArgumentBuffer} and can
- * be retrieved while executing the command.
- * <p>
- * Example :
- * /coins add <amount> [player] : amount is a required {@code Argument}, player is a facultative {@code Argument}
- * <p>
+ * be retrieved in the {@link com.nolydia.common.api.command.execution.CommandExecutor}.
  *
- * @param <T> type of the {@code Argument} value
+ * @param <T> The {@code Argument} parsed value type.
  */
 public interface Argument<T> extends TabCompletable<T> {
 
     /**
-     * Get the argument's name.
+     * Returns the argument name, as it will appear in the minecraft generated documentation of the command.
      *
-     * @return the name of the parameter.
+     * @return The name of the parameter.
      */
     InternalizationMessage getName();
 
     /**
-     * Check if the argument is required.
+     * Checks if the argument is required.
      *
-     * @return {@code true} if it is required, {@code false} otherwise
+     * @return {@code true} if it the argument is required, {@code false} otherwise.
      */
     default boolean isRequired() {
         return true;
     }
 
     /**
-     * Check if the argument is a string potentially containing whitespaces.
+     * Checks if the argument is a string potentially containing whitespaces.
      *
-     * @return {@code true} if the argument a string potentially containing whitespaces, {@code false} otherwise
+     * @return {@code true} if the argument a string potentially containing whitespaces, {@code false} otherwise.
      */
     default boolean isString() {
         return false;
     }
 
     /**
-     * Get the parsed value of the argument.
+     * Returns the parsed value of the argument.
      *
-     * @param sender the sender who executed the command
-     * @param argument the string argument as given by the command sender
-     * @return the parsed value of the parameter
+     * @param sender   The command sender.
+     * @param argument The string argument as given by the command sender.
+     * @return The parsed value of the argument.
      */
     T get(CommandSender sender, String argument);
 }

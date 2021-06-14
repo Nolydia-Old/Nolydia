@@ -1,0 +1,6 @@
+plugins {
+    id 'nolydia.library-conventions'
+    id 'nolydia.bungee-conventions'
+}
+
+version '1.0-SNAPSHOT'
